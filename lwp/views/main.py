@@ -3,7 +3,9 @@ from __future__ import absolute_import, print_function
 import os
 import re
 import time
+import glob
 import socket
+import ntpath
 import subprocess
 import ConfigParser
 
@@ -552,6 +554,23 @@ def create_container():
     return redirect(url_for('main.home'))
 
 
+@mod.route('/action/restore-container', methods=['GET', 'POST'])
+@if_logged_in()
+def restore_container():
+    """
+    verify all forms to create a container
+    """
+    if session['su'] != 'Yes':
+        return abort(403)
+    if request.method == 'POST':
+        name = request.form['name']
+        template = request.form['template']
+        command = request.form['command']
+        flash(u'Please enter a container name!', 'error')
+
+    return redirect(url_for('main.home'))
+
+
 @mod.route('/action/clone-container', methods=['GET', 'POST'])
 @if_logged_in()
 def clone_container():
@@ -648,6 +667,23 @@ def refresh_info():
                     'uptime': lwp.host_uptime(),
                     'disk': lwp.host_disk_usage()})
 
+@mod.route('/_refresh_backups')
+@if_logged_in()
+def refresh_backups():
+    
+    sr_type = 'local' # Only local supported
+    sr_path = None
+    for sr in storage_repos:
+        if sr_type in sr:
+            sr_path = sr[1]
+            break
+        
+    files = []
+    for file in glob.glob('{}/*.tar.gz'.format(sr_path)):
+        print(file)
+        files.append(ntpath.basename(file)[:-len('.tar.gz')])
+        
+    return jsonify(files)
 
 @mod.route('/_refresh_memory_<name>')
 @if_logged_in()

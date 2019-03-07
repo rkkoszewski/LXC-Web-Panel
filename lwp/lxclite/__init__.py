@@ -3,6 +3,7 @@ from __future__ import absolute_import, print_function
 import subprocess
 import os
 import time
+import shutil
 
 from lwp.exceptions import ContainerDoesntExists, ContainerAlreadyExists, ContainerAlreadyRunning, ContainerNotRunning,\
     DirectoryDoesntExists, NFSDirectoryNotMounted
@@ -293,3 +294,42 @@ def backup(container, sr_type='local', destination='/var/lxc-backup/'):
         unfreeze(container)
 
     return filename
+
+
+def restore(container, backup_file):
+    """
+    Restore container from tar to a storage repository (SR). E.g: localy or with nfs
+    If SR is localy then the path is /var/lxc-backup/
+    otherwise if SR is NFS type then we just check if the SR is mounted in host side in /mnt/lxc-backup
+
+    Returns True
+    """
+    was_running = False
+    
+    if not path.isfile(backup_file):
+        raise DirectoryDoesntExists('Backup file {} does not exist !'.format(backup_file))
+
+    if not exists(container):
+        os.makedirs('/var/lib/lxc/{}'.format(container), exist_ok=True)
+
+    try:
+        if info(container)['state'] == 'RUNNING':
+            was_running = True
+            stop(container)
+    except: 
+        pass
+
+    if exists('/var/lib/lxc/{}/rootfs/'.format(container)):
+        shutil.rmtree('/var/lib/lxc/{}/rootfs/'.format(container))
+
+    if exists('/var/lib/lxc/{}/config'.format(container)):
+        os.unlink('/var/lib/lxc/{}/config'.format(container))
+
+    _run('tar xzpf {} -C /var/lib/lxc/{}'.format(backup_file, container))
+    
+    # TODO: Update "config" file entry "lxc.rootfs" to point to the new rootfs directory
+
+    if was_running is True:
+        start(container)
+
+    return True
