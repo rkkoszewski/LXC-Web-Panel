@@ -200,6 +200,19 @@ def attach(container):
     return _run("/usr/bin/shellinaboxd {} -s '/{}/usr/bin/lxc-attach -n {}'".format(ATT_OPTS, ATT_USER, container), True)
 
 
+def console(container):
+    '''
+    Opens console inside a container
+    '''
+    if not exists(container):
+        raise ContainerDoesntExists('Container {} does not exists!'.format(container))
+
+    if container in stopped():
+        raise ContainerNotRunning('Container {} is not running!'.format(container))
+
+    return _run("/usr/bin/shellinaboxd {} -s '/{}/usr/bin/lxc-console -n {}'".format(ATT_OPTS, ATT_USER, container), True)
+
+
 def freeze(container):
     """
     Freezes a container
@@ -271,8 +284,10 @@ def backup(container, sr_type='local', destination='/var/lxc-backup/'):
     if info(container)['state'] == 'RUNNING':
         was_running = True
         freeze(container)
+        
+    print(container)
 
-    _run('tar czf {} -C /var/lib/lxc {}'.format(filename, container))
+    _run('tar czf {} -C /var/lib/lxc -C {} rootfs config'.format(filename, container))
 
     if was_running is True:
         unfreeze(container)
