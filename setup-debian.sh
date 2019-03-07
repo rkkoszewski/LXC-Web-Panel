@@ -4,7 +4,7 @@
 
 # Install Required Packages
 sudo apt-get update
-sudo apt-get install lxc python python-lxc python-flask python-setuptools curl
+sudo apt-get install lxc python python-lxc python-flask python-setuptools shellinabox curl
 sudo apt-get install python-dev libldap2-dev libsasl2-dev libffi-dev libssl-dev
 
 # Install Node

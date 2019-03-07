@@ -184,6 +184,22 @@ def stop(container):
     return _run('lxc-stop -n {}'.format(container))
 
 
+ATT_OPTS = "--cgi -t"
+ATT_USER = ":root:root:/:"
+
+def attach(container):
+    '''
+    Attaches to a container
+    '''
+    if not exists(container):
+        raise ContainerDoesntExists('Container {} does not exists!'.format(container))
+
+    if container in stopped():
+        raise ContainerNotRunning('Container {} is not running!'.format(container))
+
+    return _run("/usr/bin/shellinaboxd {} -s '/{}/usr/bin/lxc-attach -n {}'".format(ATT_OPTS, ATT_USER, container), True)
+
+
 def freeze(container):
     """
     Freezes a container

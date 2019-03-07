@@ -7,7 +7,7 @@ import socket
 import subprocess
 import ConfigParser
 
-from flask import Blueprint, request, session, g, redirect, url_for, abort, render_template, flash, jsonify
+from flask import Blueprint, request, session, g, redirect, url_for, abort, render_template, flash, jsonify, make_response
 
 import lwp
 import lwp.lxclite as lxc
@@ -17,6 +17,8 @@ from lwp.views.auth import AUTH
 # TODO: see if we can move this block somewhere better
 try:
     config = read_config_file()
+    ATT_ENABLE = config.getboolean('attach', 'enable')
+    lxc.ATT_OPTS = config.get('attach', 'options')
     USE_BUCKET = config.getboolean('global', 'buckets')
     BUCKET_HOST = config.get('buckets', 'buckets_host')
     BUCKET_PORT = config.get('buckets', 'buckets_port')
@@ -61,7 +63,7 @@ def home():
 
     return render_template('index.html', containers=lxc.ls(), containers_all=containers_all, dist=lwp.name_distro(),
                            host=socket.gethostname(), templates=lwp.get_templates_list(), storage_repos=storage_repos,
-                           auth=AUTH, clonable_containers=clonable_containers)
+                           auth=AUTH, clonable_containers=clonable_containers, attach=ATT_ENABLE)
 
 
 @mod.route('/about')
@@ -356,6 +358,23 @@ def action():
                 flash(u'Unable to start %s!' % name, 'error')
         except lxc.ContainerAlreadyRunning:
             flash(u'Container %s is already running!' % name, 'error')
+    elif act == 'attach':
+        try:
+            answer = lxc.attach(name)
+            answer = answer.split('\n')
+            header = []
+            for s in answer:
+                if s.strip() == "":
+                    break
+                header.append(s.strip())
+            answer = answer[len(header)+1:]
+            resp = make_response("\n".join(answer))
+            for s in header:
+                a=s.split(':')
+                resp.headers[a[0].strip()]=a[1].strip()
+            return resp
+        except lxc.ContainerNotRunning:
+            flash(u'Container %s is not running!' % name, 'error')
     elif act == 'stop':
         try:
             if lxc.stop(name) == 0:
