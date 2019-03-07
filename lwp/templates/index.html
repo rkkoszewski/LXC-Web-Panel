@@ -187,7 +187,7 @@
             $(function() {
                 refresh();
                 {% if session.su == 'Yes' and containers == [] %}$('#createCT').modal('show'){% endif %}
-                window.setInterval('refresh()', 15000);
+                window.setInterval('refresh()', 5000);
             });
 
             {% if session.su == 'Yes' %}$(document).ready(function(){
