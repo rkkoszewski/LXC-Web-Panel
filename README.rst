@@ -1,8 +1,31 @@
-LXC-Web-Panel
-=============
+LXC-Web-Panel - Roko Fork
+=========================
+This is a fork of claudyus/LXC-Web-Panel (https://github.com/claudyus/LXC-Web-Panel) with a bunch of new features to ease management and backup.
 
-.. image:: https://travis-ci.org/claudyus/LXC-Web-Panel.svg?branch=master
-    :target: https://travis-ci.org/claudyus/LXC-Web-Panel
+The idea is to have an admin panel that is lightweight and is able to manage LXC containers, backups and be able to connect to the console of the containers and the system itself. Similar to "Proxmox" but working on a Raspbery Pi.
+
+Changes in this fork:
+
+  - Tweaks to the backup system, and new ability to restore existing backups right from the web panel (Looks similar to the Backups in Proxmox)
+  - Integrated shellinabox to be able to access the console of the containers and the host system itself from the web panel (Based on https://github.com/lxc-webpanel/LXC-Web-Panel/pull/104)
+  - Added a setup script for Debian to compile the package from source, to be able to quickly install it on non x86 systems
+  - Some smaller visual tweaks and fixes
+
+Installation on a Debian based system (Stretch)
+-----------------------------------------------
+First clone the repository on your local system and head to the projects root folder.
+Have a look at "setup-debian-sh" (or run it directly) [Requires SUDO installed] 
+The script should install all required dependencies and compile and install the LXC-Web-Panel.
+Finally just run it with "sudo lwp".
+
+  
+Why use TAR.GZ Backups instead of LXC-Snapshots?
+------------------------------------
+The main reason is portability and support for non Unix file systems. LXC already has a command to create and restore snapshots of containers, but it does so by copying the whole root file system to a subfolder in the snaps folder (At least in directory mode, running ZFS on a Raspbery Pi is not very pretty). Also copying a snapshot to another computer is not that easy, as it requires root permissions to copy the container, requires a Unix file system for the transport device or rsync it to another device, or deal with archiving of the snapshots to move it around while keeping all permissions. The approach used in this fork is to archive the container as part of the backup process. The backup archives are stored in a user defined folder (Which can be also on any device that stores files), the archive itself contains all permissions and necessary information to correctly restore the backup, while being completely portable as a single file (And is also compressed to reduce storage space). 
+
+
+Original Readme
+=========================
 
 This is a fork of the original LXC-Web-Panel from https://github.com/lxc-webpanel/LXC-Web-Panel with a lot of improvements and bug fixes for LXC 1.0+.
 

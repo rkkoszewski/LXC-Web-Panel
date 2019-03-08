@@ -287,7 +287,7 @@ def backup(container, sr_type='local', destination='/var/lxc-backup/'):
         was_running = True
         freeze(container)
 
-    _run('tar czf {} -C /var/lib/lxc -C {} rootfs config'.format(filename, container))
+    _run('tar --numeric-owner czf {} -C /var/lib/lxc -C {} rootfs config'.format(filename, container))
 
     if was_running is True:
         unfreeze(container)
@@ -325,7 +325,7 @@ def restore(container, backup_file):
     if exists('/var/lib/lxc/{}/config'.format(container)):
         os.unlink('/var/lib/lxc/{}/config'.format(container))
 
-    _run('tar xzpf {} -C /var/lib/lxc/{}'.format(backup_file, container))
+    _run('tar --numeric-owner xzpf {} -C /var/lib/lxc/{}'.format(backup_file, container))
 
     lwp.push_config_value('lxc.rootfs', path_rootfs, container=container)
 
