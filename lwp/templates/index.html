@@ -11,6 +11,7 @@
         <div class="row buttons">
             {% if session.su == 'Yes' %}
             <span class="pull-right"><a class="btn btn-small btn-danger" data-toggle="modal" data-target="#reboot"> <i class="icon-off icon-white"></i> Reboot</a></span>
+            <span class="pull-right"><a class="btn btn-small btn-info" target="_blank" href="{{ url_for('main.action', name='None', action='host_console', token=session.token) }}"> <i class="icon-list-alt icon-white"></i> Console</a></span>
             {% if containers != [] %}
                 <span class="pull-right"><a class="btn btn-small btn-inverse" data-toggle="modal" data-target="#cloneCT"> <i class="icon-repeat icon-white"></i> Clone <abbr title="Container">CT</abbr></a></span>
                 {% if storage_repos %}
@@ -74,7 +75,7 @@
                         </td>
                         <td>
                             <div class="btn-toolbar" style="margin:8px 0;">
-                                <div class="btn-group">
+                                <div class="btn-group" style="margin-bottom: 4px;">
                                     {% set start_action = {'stopped':'start','frozen':'unfreeze'} %}
                                     <a class="btn btn-small{% if status.status == 'running' %} disabled{% endif %}"{% if status.status == 'stopped' or status.status == 'frozen' %} href="{{ url_for('main.action', name=container.name, action=start_action[status.status]) }}"{% endif %}><i class="icon-play"></i> Start</a>
                                     <a class="btn btn-small{% if status.status == 'stopped' %} disabled{% endif %}"{% if status.status == 'running' or status.status == 'frozen' %} href="{{ url_for('main.action', name=container.name, action='stop') }}"{% endif %}><i class="icon-stop"></i> Stop</a>

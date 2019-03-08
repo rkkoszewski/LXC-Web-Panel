@@ -3,7 +3,6 @@
 {% block content %}
 <div class="span6">
     {{ super() }}
-    <h3 class="head">{{ container|capitalize }}</h3>
     <div class="btn-group pull-right" data-toggle="buttons-radio">
         <div class="btn-group">
             {% set start_action = {'STOPPED':'start','FROZEN':'unfreeze'} %}
@@ -12,6 +11,7 @@
             <a class="btn{% if infos['status'] == 'FROZEN' or infos['status'] == 'STOPPED' %} disabled{% endif %}" {% if infos['status'] == 'RUNNING' %}href="{{ url_for('main.action', name=container, action='freeze', from='edit') }}"{% endif %}><i class="icon-pause"></i> Freeze</a>
         </div>
     </div>
+    <h3 class="head">{{ container|capitalize }}</h3>
 
     <form id="config" class="form-horizontal" action="{{ url_for('main.edit', container=container) }}" method="post">
         <div class="control-group">
@@ -227,15 +227,17 @@
         {% if infos.memusg %}<li id="{{ container }}"><strong>Mem. usage :</strong> {{ render_memory_wrapper(infos.memusg) }}</li>{% endif %}{% endif %}
         <li><strong>Arch :</strong> {{ settings.arch }}</li>
         {% if infos.status == "STOPPED" %}
-        <p style="padding-top: 10px;"><a class="btn btn-small btn-inverse" data-toggle="modal" data-target="#cloneCT"> <i class="icon-repeat icon-white"></i> Clone <abbr title="Container">CT</abbr></a></p>
+        <p style="padding-top: 10px;margin-bottom: 0;"><a class="btn btn-small btn-inverse" data-toggle="modal" data-target="#cloneCT"> <i class="icon-repeat icon-white"></i> Clone <abbr title="Container">CT</abbr></a></p>
         {% endif %}
         {% if storage_repos %}
-        <p style="padding-top: 10px;"><a class="btn btn-small btn-primary" data-toggle="modal" data-target="#backupCT"> <i class="icon-hdd icon-white"></i> Backup <abbr title="Container">CT</abbr></a></p>
+        <p style="padding-top: 10px;margin-bottom: 0;"><a class="btn btn-small btn-primary" data-toggle="modal" data-target="#backupCT"> <i class="icon-hdd icon-white"></i> Backup <abbr title="Container">CT</abbr></a></p>
+        <p style="padding-top: 10px;margin-bottom: 0;"><a class="btn btn-small btn-success" data-toggle="modal" data-target="#restoreCT"> <i class="icon-repeat icon-white"></i> Restore <abbr title="Container">CT</abbr></a></p>
         {% endif %}
     </ul>
 </div>
 {% include "includes/modal_clone.html" %}
 {% include "includes/modal_backup.html" %}
+{% include "includes/modal_restore.html" %}
 {% endblock %}
 
 {% macro memory_color(value) -%}{% if value != 0 %}{% if 0 <= value <= 511 %}success{% elif 512 <= value < 980 %}warning{% else %}important{% endif %}{% endif %}{%- endmacro %}

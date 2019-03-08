@@ -286,8 +286,6 @@ def backup(container, sr_type='local', destination='/var/lxc-backup/'):
     if info(container)['state'] == 'RUNNING':
         was_running = True
         freeze(container)
-        
-    print(container)
 
     _run('tar czf {} -C /var/lib/lxc -C {} rootfs config'.format(filename, container))
 
@@ -313,22 +311,23 @@ def restore(container, backup_file):
     if not exists(container):
         os.makedirs('/var/lib/lxc/{}'.format(container)) # Use , exist_ok=True in Python 3
 
-    #try:
-    if info(container)['state'] == 'RUNNING':
-        was_running = True
-        stop(container)
-#except: 
-    #    pass
+    try:
+        if info(container)['state'] == 'RUNNING':
+            was_running = True
+            stop(container)
+    except: 
+        pass
 
-    if exists('/var/lib/lxc/{}/rootfs/'.format(container)):
-        shutil.rmtree('/var/lib/lxc/{}/rootfs/'.format(container))
+    path_rootfs = '/var/lib/lxc/{}/rootfs/'.format(container)
+    if exists(path_rootfs):
+        shutil.rmtree(path_rootfs)
 
     if exists('/var/lib/lxc/{}/config'.format(container)):
         os.unlink('/var/lib/lxc/{}/config'.format(container))
 
     _run('tar xzpf {} -C /var/lib/lxc/{}'.format(backup_file, container))
 
-    lwp.push_config_value('lxc.rootfs', '/var/lib/lxc/{}/rootfs/'.format(container), container=container)
+    lwp.push_config_value('lxc.rootfs', path_rootfs, container=container)
 
     if was_running is True:
         start(container)

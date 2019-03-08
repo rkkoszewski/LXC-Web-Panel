@@ -38,3 +38,5 @@ sudo systemctl status lxc-net
 
 # DONE
 echo "SETUP FINISHED. Start LWP with command 'sudo lwp'"
+echo "You might want to disable the shellinabox service if not used"
+echo "To disable it run 'sudo systemctl disable shellinabox'

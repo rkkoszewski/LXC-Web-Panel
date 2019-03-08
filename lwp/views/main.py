@@ -394,6 +394,23 @@ def action():
             return resp
         except lxc.ContainerNotRunning:
             flash(u'Container %s is not running!' % name, 'error')
+    elif act == 'host_console':
+        try:
+            answer = lxc._run("/usr/bin/shellinaboxd {}".format(lxc.ATT_OPTS), True)
+            answer = answer.split('\n')
+            header = []
+            for s in answer:
+                if s.strip() == "":
+                    break
+                header.append(s.strip())
+            answer = answer[len(header)+1:]
+            resp = make_response("\n".join(answer))
+            for s in header:
+                a=s.split(':')
+                resp.headers[a[0].strip()]=a[1].strip()
+            return resp
+        except lxc.ContainerNotRunning:
+            flash(u'Container %s is not running!' % name, 'error')
     elif act == 'stop':
         try:
             if lxc.stop(name) == 0:
@@ -702,13 +719,11 @@ def restore_backup():
         backup_path = sr_path + '/' + backup_image + '.tar.gz'
         print('RESTORING BACKUP FILE: {} as container with alias {}'.format(backup_path, container_name))
         
-        #try:
-        lxc.restore(container_name, backup_path)
-         #   flash(u'Backup restored successfully', 'success')
-        #except lxc.DirectoryDoesntExists:
-        #    flash(u'Failed to restore backup. The backup file cannot be accessed', 'error')
-        #except:
-        #    flash(u'Failed to restore backup', 'error')
+        try:
+            lxc.restore(container_name, backup_path)
+            flash(u'Backup restored successfully', 'success')
+        except lxc.DirectoryDoesntExists:
+            flash(u'Failed to restore backup. The backup file cannot be accessed', 'error')
 
     return redirect(url_for('main.home'))
 
