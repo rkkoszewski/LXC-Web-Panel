@@ -7,12 +7,12 @@
         <div class="control-group">
             <div class="controls input-prepend">
                 <span class="add-on"><i class="icon-folder-open"></i></span>
-                <input id="inputName" type="text" pattern="^\w[\w.-]+$" placeholder="Name" name="name">
+                <input id="inputName" type="text" pattern="^[\w.-]+$" placeholder="Name" name="name">
             </div>
 
             <div class="controls input-prepend pull-right">
-                <span class="add-on"><i class="icon-download-alt"></i></span>
-                <input id="inputFilter" type="text" pattern="^\w[\w.-]+$" placeholder="Filter" name="filter">
+                <span class="add-on"><i class="icon-search"></i></span>
+                <input id="inputFilter" type="text" placeholder="Filter" name="filter">
             </div>
         </div>
         <div>
@@ -20,12 +20,13 @@
                 <thead>
                     <tr>
                         <th width="100%">Name</th>
+                        <th>Size</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td colspan="2">Unable to load the list..</td>
+                        <td colspan="3">Unable to load the list..</td>
                     </tr>
                 </tbody>
             </table>
@@ -42,40 +43,92 @@
             <p class="text-center">This could take a while...</p>
         </div>
     </div>
-    <form method="post" action="{{ url_for('main.restore_container') }}" name="restore_container" style="margin:0;"></form>
+    <form method="post" action="{{ url_for('main.restore_backup') }}" name="restore_backup" style="margin:0;">
+        <input type="hidden" name="container_name"></input>
+        <input type="hidden" name="backup_image"></input>
+    </form>
 </div>
 <script>
     window.onload = function() {
-        var $tbody = $("#restoreCT tbody");
+        var $tbody = $('#restoreCT tbody');
     
         $('#restoreCT').on('show', function(){
-            $tbody.html('<tr><td colspan="2">Loading List...</td></tr>');
-            $.getJSON('{{ url_for('main.refresh_backups', name='containers') }}', function(data) {
+            $tbody.html('<tr><td colspan="3">Loading List...</td></tr>');
+            $.getJSON('{{ url_for('main.refresh_backups') }}', function(data) {
                 $tbody.empty();
                 for (i in data) {
-                  $tbody.append($('<tr><td style="text-align: left;">' + data[i] + '</td><td><div class="btn-group"><button class="btn btn-small" onclick="restoreBackup(this)">Restore</button><button class="btn btn-small btn-danger"  onclick="deleteBackup(this)">Delete</button></div></td></tr>'));
+                  $tbody.append($('<tr><td style="text-align: left;">' + data[i][0] + '</td><td>' + data[i][1] + '</td><td><div class="btn-group"><button class="btn btn-small btn-success" onclick="restoreBackup(this)">Restore</button><button class="btn btn-small btn-danger" onclick="deleteBackup(this)">Delete</button></div></td></tr>'));
                 }
+                
+                var empty_node = $('<tr class="hide"><td colspan="3">There are no results to display.</td></tr>')
+                empty_node[0]._is_result_empty_node = true;
+                $tbody.append(empty_node);
             });
         });
         
         $('#restoreCT #inputFilter').on('input', function(){
             var value = this.value;
+            var count = 0;
             $tbody.children().each(function () {
                 var $this = $(this);
-                if($this.children(":first").text().startsWith(value)){
-                    $this.removeClass('hide');
+                if(this._is_result_empty_node){
+                    if(count == 0){
+                        $this.removeClass('hide');
+                    }else{
+                        $this.addClass('hide');
+                    }
                 }else{
-                    $this.addClass('hide');
+                    if($this.children(':first').text().startsWith(value)){
+                        $this.removeClass('hide');
+                        count++;
+                    }else{
+                        $this.addClass('hide');
+                    }
                 }
             });
         });
     };
     
-    function deleteBackup(btn_node){
-        alert("DELETE");
-    }
+    var is_restoring_backup = false;
     
+    function deleteBackup(btn_node){
+        if(is_restoring_backup) return;
+        if(confirm('Are you sure you want to delete this backup? This action cannot be undone.')){
+            var $entry_node = $(btn_node).closest('tr');
+            var backup_name = $entry_node.children(':first').text();
+            $entry_node.hide();
+            $.post('{{ url_for('main.remove_backup') }}', {'backup-image': backup_name})
+            .done(function(data){  
+                $entry_node.remove();
+            }).fail(function(xhr, status, error) {
+                $entry_node.show();
+            });
+        }
+    }
+
     function restoreBackup(btn_node){
-        alert("RESTORE");
+        if(is_restoring_backup) return;
+        is_restoring_backup = true;
+        
+        var backup_name = $(btn_node).closest('tr').children(':first').text();
+        var ct_name = $('#restoreCT #inputName').val();
+        if(ct_name.trim() == ''){
+            alert('Container name cannot be empty');
+            is_restoring_backup = false;
+            return;
+        }
+        
+        if(!confirm('You are about to restore this backup. If the container already exists, it will be overwritten. Do you still want to proceed?')){
+            is_restoring_backup = false;
+            return;
+        }
+        
+        $('#restoreCT .buttons-modal-footer').slideUp()
+        $('#restoreCT .loader-modal-footer').slideDown()
+        
+        var $form = $('form[name="restore_backup"]');
+        $form.children('input[name="container_name"]').val(ct_name);
+        $form.children('input[name="backup_image"]').val(backup_name);
+        $form.submit();
     }
 </script>

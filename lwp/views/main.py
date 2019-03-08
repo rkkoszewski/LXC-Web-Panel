@@ -13,7 +13,7 @@ from flask import Blueprint, request, session, g, redirect, url_for, abort, rend
 
 import lwp
 import lwp.lxclite as lxc
-from lwp.utils import query_db, if_logged_in, get_bucket_token, hash_passwd, read_config_file, cgroup_ext
+from lwp.utils import query_db, if_logged_in, get_bucket_token, hash_passwd, read_config_file, cgroup_ext, sizeof_fmt
 from lwp.views.auth import AUTH
 
 # TODO: see if we can move this block somewhere better
@@ -554,23 +554,6 @@ def create_container():
     return redirect(url_for('main.home'))
 
 
-@mod.route('/action/restore-container', methods=['GET', 'POST'])
-@if_logged_in()
-def restore_container():
-    """
-    verify all forms to create a container
-    """
-    if session['su'] != 'Yes':
-        return abort(403)
-    if request.method == 'POST':
-        name = request.form['name']
-        template = request.form['template']
-        command = request.form['command']
-        flash(u'Please enter a container name!', 'error')
-
-    return redirect(url_for('main.home'))
-
-
 @mod.route('/action/clone-container', methods=['GET', 'POST'])
 @if_logged_in()
 def clone_container():
@@ -660,12 +643,75 @@ def backup_container():
     return redirect(url_for('main.home'))
 
 
-@mod.route('/_refresh_info')
+@mod.route('/action/remove-backup', methods=['POST'])
 @if_logged_in()
-def refresh_info():
-    return jsonify({'cpu': lwp.host_cpu_percent(),
-                    'uptime': lwp.host_uptime(),
-                    'disk': lwp.host_disk_usage()})
+def remove_backup():
+    """
+    Remove Backup
+    """
+    if session['su'] != 'Yes':
+        return abort(403)
+    
+    if request.method == 'POST':
+        backup_image = ntpath.basename(request.form['backup-image']) # Sanitze filename
+        
+        sr_type = 'local' # Only local supported
+        sr_path = None
+        for sr in storage_repos:
+            if sr_type in sr:
+                sr_path = sr[1]
+                break
+            
+        if sr_path == None:
+            return jsonify(False)
+        
+        backup_path = sr_path + '/' + backup_image + '.tar.gz'
+        
+        if os.path.exists(backup_path):
+            os.remove(backup_path)
+            
+        print('BACKUP FILE DELETED: ' + backup_path)
+
+    return jsonify(True)
+
+
+@mod.route('/action/restore-backup', methods=['POST'])
+@if_logged_in()
+def restore_backup():
+    """
+    Restore Backup
+    """
+    if session['su'] != 'Yes':
+        return abort(403)
+    
+    if request.method == 'POST':
+        backup_image = ntpath.basename(request.form['backup_image']) # Sanitze filename
+        container_name = ntpath.basename(request.form['container_name']) # Sanitze filename
+        
+        sr_type = 'local' # Only local supported
+        sr_path = None
+        for sr in storage_repos:
+            if sr_type in sr:
+                sr_path = sr[1]
+                break
+            
+        if sr_path == None:
+            flash(u'ERROR: Failed to restore backup. No local repository defined in configuration file', 'error')
+            return redirect(url_for('main.home'))
+        
+        backup_path = sr_path + '/' + backup_image + '.tar.gz'
+        print('RESTORING BACKUP FILE: {} as container with alias {}'.format(backup_path, container_name))
+        
+        #try:
+        lxc.restore(container_name, backup_path)
+         #   flash(u'Backup restored successfully', 'success')
+        #except lxc.DirectoryDoesntExists:
+        #    flash(u'Failed to restore backup. The backup file cannot be accessed', 'error')
+        #except:
+        #    flash(u'Failed to restore backup', 'error')
+
+    return redirect(url_for('main.home'))
+
 
 @mod.route('/_refresh_backups')
 @if_logged_in()
@@ -678,12 +724,23 @@ def refresh_backups():
             sr_path = sr[1]
             break
         
+    if sr_path == None:
+        return jsonify([])
+        
     files = []
-    for file in glob.glob('{}/*.tar.gz'.format(sr_path)):
-        print(file)
-        files.append(ntpath.basename(file)[:-len('.tar.gz')])
+    for file in sorted(glob.glob('{}/*.tar.gz'.format(sr_path)), reverse=True):
+        files.append([ntpath.basename(file)[:-len('.tar.gz')], sizeof_fmt(os.path.getsize(file))])
         
     return jsonify(files)
+
+
+@mod.route('/_refresh_info')
+@if_logged_in()
+def refresh_info():
+    return jsonify({'cpu': lwp.host_cpu_percent(),
+                    'uptime': lwp.host_uptime(),
+                    'disk': lwp.host_disk_usage()})
+
 
 @mod.route('/_refresh_memory_<name>')
 @if_logged_in()

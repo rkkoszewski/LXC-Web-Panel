@@ -4,6 +4,7 @@ import subprocess
 import os
 import time
 import shutil
+import lwp
 
 from lwp.exceptions import ContainerDoesntExists, ContainerAlreadyExists, ContainerAlreadyRunning, ContainerNotRunning,\
     DirectoryDoesntExists, NFSDirectoryNotMounted
@@ -306,18 +307,18 @@ def restore(container, backup_file):
     """
     was_running = False
     
-    if not path.isfile(backup_file):
+    if not os.path.isfile(backup_file):
         raise DirectoryDoesntExists('Backup file {} does not exist !'.format(backup_file))
 
     if not exists(container):
-        os.makedirs('/var/lib/lxc/{}'.format(container), exist_ok=True)
+        os.makedirs('/var/lib/lxc/{}'.format(container)) # Use , exist_ok=True in Python 3
 
-    try:
-        if info(container)['state'] == 'RUNNING':
-            was_running = True
-            stop(container)
-    except: 
-        pass
+    #try:
+    if info(container)['state'] == 'RUNNING':
+        was_running = True
+        stop(container)
+#except: 
+    #    pass
 
     if exists('/var/lib/lxc/{}/rootfs/'.format(container)):
         shutil.rmtree('/var/lib/lxc/{}/rootfs/'.format(container))
@@ -326,8 +327,8 @@ def restore(container, backup_file):
         os.unlink('/var/lib/lxc/{}/config'.format(container))
 
     _run('tar xzpf {} -C /var/lib/lxc/{}'.format(backup_file, container))
-    
-    # TODO: Update "config" file entry "lxc.rootfs" to point to the new rootfs directory
+
+    lwp.push_config_value('lxc.rootfs', '/var/lib/lxc/{}/rootfs/'.format(container), container=container)
 
     if was_running is True:
         start(container)

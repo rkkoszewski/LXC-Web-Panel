@@ -160,3 +160,12 @@ def api_auth():
         new_handler.func_name = handler.func_name
         return new_handler
     return decorator
+
+
+# Source: https://stackoverflow.com/a/1094933
+def sizeof_fmt(num, suffix='B'):
+    for unit in ['','K','M','G','T','P','E','Z']:
+        if abs(num) < 1024.0:
+            return "%3.2f%s%s" % (num, unit, suffix)
+        num /= 1024.0
+    return "%.2f%s%s" % (num, 'Y', suffix)
