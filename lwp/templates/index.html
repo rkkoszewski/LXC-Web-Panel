@@ -7,94 +7,116 @@
 <div class="span9">
     {{ super() }}
 
-    <div class="hero-unit">
-        <div class="row buttons">
-            {% if session.su == 'Yes' %}
-            <span class="pull-right"><a class="btn btn-small btn-danger" data-toggle="modal" data-target="#reboot"> <i class="icon-off icon-white"></i> Reboot</a></span>
-            <span class="pull-right"><a class="btn btn-small btn-info" target="_blank" href="{{ url_for('main.action', name='None', action='host_console', token=session.token) }}"> <i class="icon-list-alt icon-white"></i> Console</a></span>
-            {% if containers != [] %}
-                <span class="pull-right"><a class="btn btn-small btn-inverse" data-toggle="modal" data-target="#cloneCT"> <i class="icon-repeat icon-white"></i> Clone <abbr title="Container">CT</abbr></a></span>
-                {% if storage_repos %}
-                    <span class="pull-right"><a class="btn btn-small btn-primary" data-toggle="modal" data-target="#backupCT"> <i class="icon-hdd icon-white"></i> Backup <abbr title="Container">CT</abbr></a></span>
-                    <span class="pull-right"><a class="btn btn-small btn-success" data-toggle="modal" data-target="#restoreCT"> <i class="icon-repeat icon-white"></i> Restore <abbr title="Container">CT</abbr></a></span>
+    <div class="card">
+        <div class="row-fluid line">
+            <div class="span12">
+                {% if session.su == 'Yes' %}
+                <div class="buttons">
+                    <span class="pull-right"><a class="btn btn-small btn-danger" data-toggle="modal" data-target="#reboot"> <i class="icon-off icon-white"></i> Reboot</a></span>
+                    <span class="pull-right"><a class="btn btn-small btn-info" target="_blank" href="{{ url_for('main.action', name='None', action='host_console', token=session.token) }}"> <i class="icon-list-alt icon-white"></i> Console</a></span>
+                </div>
                 {% endif %}
-            {% endif %}
-            <span class="pull-right"><a class="btn btn-small btn-success" data-toggle="modal" data-target="#createCT"><i class="icon-plus-sign icon-white"></i> Create <abbr title="Container">CT</abbr></a></span>
-            {% endif %}
+                <h4 class="system-title">{{ dist }} ({{ host }})</h4>
+            </div>
         </div>
-        <div class="row">
-            <h3 style="margin-left: 10px">{{ dist }} ({{ host }})</h3>
-            <div class="span4">
-                <p>CPU usage : <span id="cpu-usage" class="hide"></span></p>
+        <div class="row-fluid">
+            <div class="span6">
+                <p class="info-row">CPU usage <span id="cpu-usage" class="hide"></span></p>
+                <div style="clear:both"></div>
                 <div class="progress">
                     <div class="bar" id="cpu-usage-bar"></div>
                 </div>
-                <p>Memory usage : <span id="memory-usage" class="hide"></span></p>
+                <p class="info-row">Memory usage <span id="memory-usage" class="hide"></span></p>
+                <div style="clear:both"></div>
                 <div class="progress">
                     <div class="bar" id="memory-usage-bar"></div>
                     <abbr title="Cached memory"><div class="bar bar-success" id="memory-cache-usage-bar"></div></abbr>
                 </div>
             </div>
-            <div class="span4">
-                <p>Disk usage : <span id="disk-usage" class="hide"></span></p>
+            <div class="span6">
+                <p class="info-row">Disk usage <span id="disk-usage" class="hide"></span></p>
+                <div style="clear:both"></div>
                 <div class="progress">
                     <div class="bar" id="disk-usage-bar"></div>
                 </div>
-                <p>Uptime : <span id="uptime" class="hide"></span></p>
+                <p class="info-row">Uptime <span id="uptime" class="hide"></span></p>
+                <div style="clear:both"></div>
             </div>
         </div>
     </div>
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th class="hidden-phone">Status</th>
-                <th>Name</th>
-                <th class="hidden-phone">Hostname</th>
-                <th>IP Address</th>
-                <th>Mem. usage</th>
-                <th class="hidden-phone">Auto Start</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        {% for status in containers_all %}
-            <tbody>
-                {% for container in status.containers %}
-                    <tr class="{{ tr[status.status] }}">
-                        {% if loop.first %}<td rowspan="{{ status.containers|count }}" class="hidden-phone"><span class="label label-{{ td[status.status] }}">{{ status.status|capitalize }}</span></td>{% endif %}
-                        <td><a href="{{ url_for('main.edit',container=container.name) }}" title="Click to edit {{container.name}}">{{container.name}}</a></td>
-                        <td class="hidden-phone">{{container.settings.utsname}}</td>
-                        <td>{% if container.settings.ipv4  %}{{container.settings.ipv4}}{% else %}-{% endif %}</td>
-                        <td id="{{container.name}}">{{ render_memory_wrapper(container.memusg, container.settings.memlimit) }}</td>
-                        <td class="hidden-phone">
-                            {% if container.settings.start_auto == '1' %}
-                                <i class="icon-ok"></i>
-                                {% if container.settings.start_order %} {{ container.settings.start_order }} {% endif %}
-                            {% else %}
-                                -
-                            {% endif %}
-                        </td>
-                        <td>
-                            <div class="btn-toolbar" style="margin:8px 0;">
-                                <div class="btn-group" style="margin-bottom: 4px;">
-                                    {% set start_action = {'stopped':'start','frozen':'unfreeze'} %}
-                                    <a class="btn btn-small{% if status.status == 'running' %} disabled{% endif %}"{% if status.status == 'stopped' or status.status == 'frozen' %} href="{{ url_for('main.action', name=container.name, action=start_action[status.status]) }}"{% endif %}><i class="icon-play"></i> Start</a>
-                                    <a class="btn btn-small{% if status.status == 'stopped' %} disabled{% endif %}"{% if status.status == 'running' or status.status == 'frozen' %} href="{{ url_for('main.action', name=container.name, action='stop') }}"{% endif %}><i class="icon-stop"></i> Stop</a>
-                                    <a class="btn btn-small{% if status.status == 'frozen' or status.status == 'stopped' %} disabled{% endif %} hidden-phone"{% if status.status == 'running' %} href="{{ url_for('main.action', name=container.name, action='freeze') }}"{% endif %}><i class="icon-pause"></i> Freeze</a>
-                                </div>
-                                <div class="btn-group">
-                                    {% if attach == True %}<a target="_blank" class="btn btn-small{% if status.status == 'stopped' %} disabled{% endif %}"{% if status.status == 'running' %} href="{{ url_for('main.action', name=container.name, action='attach', token=session.token) }}"{% endif %}><i class="icon-circle-arrow-right"></i> Attach</a>{% endif %}
-                                    {% if attach == True %}<a target="_blank" class="btn btn-small{% if status.status == 'stopped' %} disabled{% endif %}"{% if status.status == 'running' %} href="{{ url_for('main.action', name=container.name, action='console', token=session.token) }}"{% endif %}><i class="icon-list-alt"></i> Console</a>{% endif %}
-                                </div>
-                                
-                                
-                                {% if session.su == 'Yes' and status.status == 'stopped' %}<a class="pull-right close destroy" data-container-name="{{container.name}}" style="margin-top:4px;"><i class="icon-remove-sign"></i></a>{% endif %}
-                            </div>
-                        </td>
+    
+    <div class="card nopadding">
+        <div style="padding: 0 12px">
+            <div class="line" style="padding: 12px 0 10px 0;">
+                {% if session.su == 'Yes' %}
+                <div class="buttons">
+                    {% if session.su == 'Yes' %}
+                    {% if containers != [] %}
+                        <span class="pull-right"><a class="btn btn-small btn-inverse" data-toggle="modal" data-target="#cloneCT"> <i class="icon-repeat icon-white"></i> Clone <abbr title="Container">CT</abbr></a></span>
+                        {% if storage_repos %}
+                            <span class="pull-right"><a class="btn btn-small btn-primary" data-toggle="modal" data-target="#backupCT"> <i class="icon-hdd icon-white"></i> Backup <abbr title="Container">CT</abbr></a></span>
+                            <span class="pull-right"><a class="btn btn-small btn-success" data-toggle="modal" data-target="#restoreCT"> <i class="icon-repeat icon-white"></i> Restore <abbr title="Container">CT</abbr></a></span>
+                        {% endif %}
+                    {% endif %}
+                    <span class="pull-right"><a class="btn btn-small btn-success" data-toggle="modal" data-target="#createCT"><i class="icon-plus-sign icon-white"></i> Create <abbr title="Container">CT</abbr></a></span>
+                    {% endif %}
+                </div>
+                {% endif %}
+                <h4 class="system-title">Containers</h4>
+                <div style="clear: both;"></div>
+            </div>
+        </div>
+        <div style="overflow: auto hidden;">
+            <table class="table card-fix">
+                <thead>
+                    <tr>
+                        <th class="hidden-phone">Status</th>
+                        <th>Name</th>
+                        <th class="hidden-phone">Hostname</th>
+                        <th class="hidden-phone">IP Address</th>
+                        <th>Mem. usage</th>
+                        <th class="hidden-phone">Auto Start</th>
+                        <th>Actions</th>
                     </tr>
+                </thead>
+                {% for status in containers_all %}
+                    <tbody>
+                        {% for container in status.containers %}
+                            <tr class="{{ tr[status.status] }}">
+                                {% if loop.first %}<td rowspan="{{ status.containers|count }}" class="hidden-phone"><span class="label label-{{ td[status.status] }}">{{ status.status|capitalize }}</span></td>{% endif %}
+                                <td><a href="{{ url_for('main.edit',container=container.name) }}" title="Click to edit {{container.name}}">{{container.name}}</a></td>
+                                <td class="hidden-phone">{{container.settings.utsname}}</td>
+                                <td class="hidden-phone">{% if container.settings.ipv4  %}{{container.settings.ipv4}}{% else %}-{% endif %}</td>
+                                <td id="{{container.name}}">{{ render_memory_wrapper(container.memusg, container.settings.memlimit) }}</td>
+                                <td class="hidden-phone">
+                                    {% if container.settings.start_auto == '1' %}
+                                        <i class="icon-ok"></i>
+                                        {% if container.settings.start_order %} {{ container.settings.start_order }} {% endif %}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-toolbar" style="margin:8px 0 6px 0;">
+                                        <div class="btn-group" style="margin-bottom: 4px;">
+                                            {% set start_action = {'stopped':'start','frozen':'unfreeze'} %}
+                                            <a class="btn btn-small{% if status.status == 'running' %} disabled{% endif %}"{% if status.status == 'stopped' or status.status == 'frozen' %} href="{{ url_for('main.action', name=container.name, action=start_action[status.status]) }}"{% endif %}><i class="icon-play"></i> Start</a>
+                                            <a class="btn btn-small{% if status.status == 'stopped' %} disabled{% endif %}"{% if status.status == 'running' or status.status == 'frozen' %} href="{{ url_for('main.action', name=container.name, action='stop') }}"{% endif %}><i class="icon-stop"></i> Stop</a>
+                                            <a class="btn btn-small{% if status.status == 'frozen' or status.status == 'stopped' %} disabled{% endif %} hidden-phone"{% if status.status == 'running' %} href="{{ url_for('main.action', name=container.name, action='freeze') }}"{% endif %}><i class="icon-pause"></i> Freeze</a>
+                                        </div>
+                                        <div class="btn-group" style="margin-bottom: 4px;">
+                                            {% if attach == True %}<a target="_blank" class="btn btn-small{% if status.status == 'stopped' %} disabled{% endif %}"{% if status.status == 'running' %} href="{{ url_for('main.action', name=container.name, action='attach', token=session.token) }}"{% endif %}><i class="icon-circle-arrow-right"></i> Attach</a>{% endif %}
+                                            {% if attach == True %}<a target="_blank" class="btn btn-small{% if status.status == 'stopped' %} disabled{% endif %}"{% if status.status == 'running' %} href="{{ url_for('main.action', name=container.name, action='console', token=session.token) }}"{% endif %}><i class="icon-list-alt"></i> Console</a>{% endif %}
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
                 {% endfor %}
-            </tbody>
-        {% endfor %}
-    </table>
+            </table>
+        </div>
+    </div>
 </div>
 {% if session.su == 'Yes' %}
     {% include "includes/modal_reboot.html" %}
@@ -104,7 +126,6 @@
     {% if containers != [] %}
         {% include "includes/modal_clone.html" %}
         {% include "includes/modal_backup.html" %}
-        {% include "includes/modal_destroy.html" %}
     {% endif %}
 {% endif %}
 
@@ -192,12 +213,6 @@
             });
 
             {% if session.su == 'Yes' %}$(document).ready(function(){
-
-                $(".destroy").on('click',function(e){
-                    $(".destroy-link").attr('href',"{{url_for('main.action', action='destroy') }}" + "&name=" + $(this).data('container-name'));
-                    $('.modal-body #destroy-container-name').text($(this).data('container-name'));
-                    $('#destroy').modal('show');
-                });
 
                 // Create CT
                 $('#advancedcreate').click(function(e){ e.preventDefault(); $('#advancedcreatediv').slideToggle(); });

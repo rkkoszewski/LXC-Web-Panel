@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block title %}Networking{% endblock %}
 {% block content %}
-<div class="span9">
+<div class="span9 card">
     {{ super() }}
     <form id="config" class="form-horizontal" action="{{ url_for('main.lxc_net') }}" method="post">
         <h3 class="head head-networking">LXC Network</h3>

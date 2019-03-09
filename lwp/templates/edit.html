@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block title %}{{container|capitalize}}{% endblock %}
 {% block content %}
-<div class="span6">
+<div class="span6 card">
     {{ super() }}
     <div class="btn-group pull-right" data-toggle="buttons-radio">
         <div class="btn-group">
@@ -233,11 +233,13 @@
         <p style="padding-top: 10px;margin-bottom: 0;"><a class="btn btn-small btn-primary" data-toggle="modal" data-target="#backupCT"> <i class="icon-hdd icon-white"></i> Backup <abbr title="Container">CT</abbr></a></p>
         <p style="padding-top: 10px;margin-bottom: 0;"><a class="btn btn-small btn-success" data-toggle="modal" data-target="#restoreCT"> <i class="icon-repeat icon-white"></i> Restore <abbr title="Container">CT</abbr></a></p>
         {% endif %}
+        <p style="padding-top: 10px;margin-bottom: 0;"><a class="btn btn-small btn-danger destroy"> <i class="icon-trash icon-white"></i> Destroy <abbr title="Container">CT</abbr></a></p>
     </ul>
 </div>
 {% include "includes/modal_clone.html" %}
 {% include "includes/modal_backup.html" %}
 {% include "includes/modal_restore.html" %}
+{% include "includes/modal_destroy.html" %}
 {% endblock %}
 
 {% macro memory_color(value) -%}{% if value != 0 %}{% if 0 <= value <= 511 %}success{% elif 512 <= value < 980 %}warning{% else %}important{% endif %}{% endif %}{%- endmacro %}
@@ -293,5 +295,14 @@
             // called to update the slider value when inputText changes
             $('#' + elem).val(value);
         };
+        
+        {% if session.su == 'Yes' %}$(document).ready(function(){
+                $(".destroy").on('click',function(e){
+                    $(".destroy-link").attr('href',"{{url_for('main.action', action='destroy') }}" + "&name={{container}}");
+                    $('.modal-body #destroy-container-name').text("{{container}}");
+                    $('#destroy').modal('show');
+                });
+        });{% endif %}
+        
     </script>
 {% endblock %}

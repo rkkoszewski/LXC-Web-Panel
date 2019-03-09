@@ -4,6 +4,9 @@ html, body {
 html {
     overflow-y: scroll;
 }
+body {
+    background-color: #F9F9F9;
+}
 h3.head {
     margin: 0;
 }
@@ -22,6 +25,12 @@ h3.head-networking, .switch-networking {
     vertical-align: middle;
     padding: 0 8px;
     text-align: center;
+}
+.table thead th{
+    white-space: nowrap;
+}
+.table{
+    margin-bottom: 0;
 }
 .hero-unit {
     padding: 5px 30px;
@@ -46,9 +55,13 @@ h3.head-networking, .switch-networking {
 #push, #footer {
     height: 60px;
 }
-#wrap > .container {
-    padding-top: 60px;
+
+@media (min-width: 979px){
+    #wrap > .container, #wrap > .container-fluid {
+        padding-top: 65px;
+    }
 }
+
 .container .credit {
     margin: 20px 0;
 }
@@ -71,6 +84,103 @@ h3.head-networking, .switch-networking {
 .contributor i {
     margin-right: 3px;
 }
+.system-title{
+    font-size: 18px;
+    margin: 0;
+    line-height: 24px;
+    text-transform: capitalize;
+}
 .buttons span {
     margin-left: 7px;
+    margin-bottom: 4px;
+}
+.line{
+    border-bottom: solid 1px rgba(128, 128, 128, 0.1);
+    padding-bottom: 6px;
+    margin-bottom: 6px;
+}
+.card{
+    background-color: white;
+    border-radius: 2px;
+    box-shadow: 0 2px 1px -1px rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 1px 3px 0 rgba(0,0,0,.12);
+    padding: 12px;
+    margin-bottom: 12px;
+    overflow: hidden;
+}
+table.card{
+    padding: 0;
+    border: 0;
+}
+.nopadding{
+    padding: 0;
+}
+.card-padding{
+    padding: 12px;
+}
+.card-fix.table thead th{
+    padding: 6px 12px 12px 12px;
+}
+.btn{
+    background-image: inherit;
+    box-shadow: 0 2px 1px -1px rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 1px 3px 0 rgba(0,0,0,.12);
+    transition: box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out;
+    border: none;
+    border-radius: 2px;
+}
+
+.btn:not(.disabled):focus,.btn:not(.disabled):hover{
+    box-shadow: 0 3px 3px -2px rgba(0,0,0,.2), 0 3px 4px 0 rgba(0,0,0,.14), 0 1px 8px 0 rgba(0,0,0,.12);
+}
+
+.btn:not(.disabled):active{
+    box-shadow: 0 2px 1px -1px rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 1px 3px 0 rgba(0,0,0,.12);
+}
+.navbar-inverse .navbar-inner{
+    background-image: initial;
+    background-color: #262626;
+}
+.progress{
+    border: solid 1px #e4e4e4;
+    background-image: initial;
+    box-shadow: initial;
+    border-radius: 2px;
+    margin-bottom: 10px;
+}
+.progress .bar{
+    background-image: initial;
+    box-shadow: initial;
+}
+.info-row{
+    font-weight: 600;
+}
+.info-row>span{
+    font-weight: 100;
+    float: right;
+}
+.login-card{
+    margin: 12px auto;
+    max-width: 250px;
+}
+.input-append, .input-prepend{
+    display: flex;
+}
+.input-append>input, .input-prepend>input, .input-append>select, .input-prepend>select{
+    width: 100%;
+}
+.input-append .uneditable-input, .input-append input, .input-append select, .input-prepend .add-on:first-child, .input-prepend .btn:first-child{
+    border-radius: 2px 0 0 2px;
+}
+.input-append .uneditable-input, .input-append input, .input-append select, .input-prepend .uneditable-input, .input-prepend input, .input-prepend select{
+        border-radius: 0 2px 2px 0;
+}
+form{
+    margin: 0;
+}
+.modal{
+    border-radius: 3px;
+    box-shadow: 0 3px 5px -1px rgba(0,0,0,.2), 0 5px 8px 0 rgba(0,0,0,.14), 0 1px 14px 0 rgba(0,0,0,.12);
+}
+.uneditable-input, input[type=color], input[type=date], input[type=datetime-local], input[type=datetime], input[type=email], input[type=month], input[type=number], input[type=password], input[type=search], input[type=tel], input[type=text], input[type=time], input[type=url], input[type=week], textarea{
+    border-radius: 2px;
+    box-shadow: none;
 }
