@@ -50,7 +50,7 @@ h3.head-networking, .switch-networking {
     min-height: 100%;
     height: auto !important;
     height: 100%;
-    margin: 0 auto -60px;
+    margin: 0 auto -61px;
 }
 #push, #footer {
     height: 60px;
@@ -110,6 +110,10 @@ h3.head-networking, .switch-networking {
 table.card{
     padding: 0;
     border: 0;
+}
+.max-width{
+    margin: 0 auto;
+    max-width: 1440px;
 }
 .nopadding{
     padding: 0;
@@ -183,4 +187,9 @@ form{
 .uneditable-input, input[type=color], input[type=date], input[type=datetime-local], input[type=datetime], input[type=email], input[type=month], input[type=number], input[type=password], input[type=search], input[type=tel], input[type=text], input[type=time], input[type=url], input[type=week], textarea{
     border-radius: 2px;
     box-shadow: none;
+}
+.navbar .btn-navbar{
+    background: none;
+    box-shadow: none;
+    border-radius: 2px;
 }

@@ -1,5 +1,5 @@
 <div class="span3 hidden-phone">
-    <div class="well sidebar-nav">
+    <div class="sidebar-nav">
         <ul class="nav nav-list">
             <li class="nav-header">General</li>
             <li{% if request.url_rule.endpoint=="main.home" %} class="active"{% endif %}><a href="{{ url_for('main.home') }}" id="home-btn"><i class="icon-home"></i> Overview<i class="icon-refresh hide" id="home-load" style="float:right;margin-top:3px;"></i></a></li>
