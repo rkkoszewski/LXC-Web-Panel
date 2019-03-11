@@ -360,6 +360,10 @@ def action():
                 flash(u'Unable to start %s!' % name, 'error')
         except lxc.ContainerAlreadyRunning:
             flash(u'Container %s is already running!' % name, 'error')
+        except:
+            # Fatal error message
+            flash(u'Container could not be started! Check the error log at "/var/lib/lxc/{}/{}.log" for more information'.format(name, name), 'error')
+
     elif act == 'attach':
         try:
             answer = lxc.attach(name)

@@ -306,7 +306,7 @@ def push_config_value(key, value, container=None):
             while i < len(read):
                 if not read[i].startswith('#'):
                     if not (read[i] in values):
-                        if re.match('lxc.cgroup.devices.deny|lxc.cgroup.devices.allow|lxc.mount.entry|lxc.cap.drop', read[i]):
+                        if re.match('lxc.cgroup.devices.deny|lxc.cgroup.devices.allow|lxc.mount.entry|lxc.cap.drop|lxc.include', read[i]):
                             values.append(read[i])
                 i += 1
             return values
@@ -333,6 +333,8 @@ def push_config_value(key, value, container=None):
             config.remove_option('DEFAULT', 'lxc.cap.drop')
         if config.has_option('DEFAULT', 'lxc.mount.entry'):
             config.remove_option('DEFAULT', 'lxc.mount.entry')
+        if config.has_option('DEFAULT', 'lxc.include'):
+            config.remove_option('DEFAULT', 'lxc.include')
 
         with open(filename, 'wb') as configfile:
             config.write(configfile)
