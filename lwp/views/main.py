@@ -459,6 +459,16 @@ def action():
             flash(u'System will now restart!', 'success')
         except subprocess.CalledProcessError:
             flash(u'System error!', 'error')
+    elif act == 'shutdown' and name == 'host':
+        if session['su'] != 'Yes':
+            return abort(403)
+        msg = '\v*** LXC Web Panel *** \
+                \nShutdown from web panel'
+        try:
+            subprocess.check_call('/sbin/shutdown now \'%s\'' % msg, shell=True)
+            flash(u'System will now shutdown!', 'success')
+        except subprocess.CalledProcessError:
+            flash(u'System error!', 'error')
     elif act == 'push':
         # TODO: implement push action
         pass

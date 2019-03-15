@@ -12,7 +12,8 @@
             <div class="span12">
                 {% if session.su == 'Yes' %}
                 <div class="buttons">
-                    <span class="pull-right"><a class="btn btn-small btn-danger" data-toggle="modal" data-target="#reboot"> <i class="icon-off icon-white"></i> Reboot</a></span>
+                    <span class="pull-right"><a class="btn btn-small btn-danger" data-toggle="modal" data-target="#shutdown"> <i class="icon-off icon-white"></i> Shutdown</a></span>
+                    <span class="pull-right"><a class="btn btn-small btn-danger" data-toggle="modal" data-target="#reboot"> <i class="icon-repeat icon-white"></i> Reboot</a></span>
                     <span class="pull-right"><a class="btn btn-small btn-info" target="_blank" href="{{ url_for('main.action', name='None', action='host_console', token=session.token) }}"> <i class="icon-list-alt icon-white"></i> Console</a></span>
                 </div>
                 {% endif %}
@@ -120,6 +121,7 @@
 </div>
 {% if session.su == 'Yes' %}
     {% include "includes/modal_reboot.html" %}
+    {% include "includes/modal_shutdown.html" %}
     {% include "includes/modal_create.html" %}
     {% include "includes/modal_restore.html" %}
 
