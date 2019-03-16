@@ -24,6 +24,7 @@ try:
     USE_BUCKET = config.getboolean('global', 'buckets')
     BUCKET_HOST = config.get('buckets', 'buckets_host')
     BUCKET_PORT = config.get('buckets', 'buckets_port')
+    FIXES_LXC_LOG_SPAM_WORKAROUND = config.getboolean('fixes', 'lxc_log_block_workaround')
 except ConfigParser.NoOptionError:
     USE_BUCKET = False
     print("- Bucket feature disabled")
@@ -734,7 +735,7 @@ def restore_backup():
         print('RESTORING BACKUP FILE: {} as container with alias {}'.format(backup_path, container_name))
         
         try:
-            lxc.restore(container_name, backup_path)
+            lxc.restore(container_name, backup_path, FIXES_LXC_LOG_SPAM_WORKAROUND)
             flash(u'Backup restored successfully', 'success')
         except lxc.DirectoryDoesntExists:
             flash(u'Failed to restore backup. The backup file cannot be accessed', 'error')

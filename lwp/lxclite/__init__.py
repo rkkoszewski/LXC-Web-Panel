@@ -9,7 +9,6 @@ import lwp
 from lwp.exceptions import ContainerDoesntExists, ContainerAlreadyExists, ContainerAlreadyRunning, ContainerNotRunning,\
     DirectoryDoesntExists, NFSDirectoryNotMounted
 
-
 # LXC Python Library
 
 # Original author: Elie Deloumeau
@@ -295,7 +294,7 @@ def backup(container, sr_type='local', destination='/var/lxc-backup/'):
     return filename
 
 
-def restore(container, backup_file):
+def restore(container, backup_file, FIXES_LXC_LOG_SPAM_WORKAROUND):
     """
     Restore container from tar to a storage repository (SR). E.g: localy or with nfs
     If SR is localy then the path is /var/lxc-backup/
@@ -323,11 +322,19 @@ def restore(container, backup_file):
         shutil.rmtree(path_rootfs)
 
     if exists('/var/lib/lxc/{}/config'.format(container)):
-        os.unlink('/var/lib/lxc/{}/config'.format(container))
+        os.remove('/var/lib/lxc/{}/config'.format(container))
 
     _run('tar xzpf "{}" --numeric-owner --acls -C "/var/lib/lxc/{}"'.format(backup_file, container))
 
     lwp.push_config_value('lxc.rootfs', path_rootfs, container=container)
+    
+    ## LXC SPAM WORKAROUND
+    if FIXES_LXC_LOG_SPAM_WORKAROUND:
+        log_file = '/var/lib/lxc/{}/{}.log'.format(container, container)
+        if os.path.isfile(log_file):
+            os.remove(log_file)
+        if not os.path.isdir(log_file):
+            os.makedirs(log_file)
 
     if was_running is True:
         start(container)
