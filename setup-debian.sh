@@ -4,7 +4,7 @@
 
 # Install Required Packages
 sudo apt-get update
-sudo apt-get install lxc bridge-utils python python-lxc python-flask python-setuptools shellinabox iptables curl -y
+sudo apt-get install lxc bridge-utils python python-lxc python-flask python-setuptools shellinabox iptables curl busybox -y
 sudo apt-get install python-dev libldap2-dev libsasl2-dev libffi-dev libssl-dev -y
 
 # Install Node
@@ -31,6 +31,12 @@ sudo cp lwp.db /var/lwp/lwp.db
 # Enable Bridge Interface
 if [ ! -f '/etc/default/lxc-net' ]; then
    sudo echo 'USE_LXC_BRIDGE="false"' > /etc/default/lxc-net
+   sudo echo 'LXC_BRIDGE="lxcbr0"' >> /etc/default/lxc-net
+   sudo echo 'LXC_ADDR="10.0.3.1"' >> /etc/default/lxc-net
+   sudo echo 'LXC_NETMASK="255.255.255.0"' >> /etc/default/lxc-net
+   sudo echo 'LXC_NETWORK="10.0.3.0/24"' >> /etc/default/lxc-net
+   sudo echo 'LXC_DHCP_RANGE="10.0.3.2,10.0.3.254"' >> /etc/default/lxc-net
+   sudo echo 'LXC_DHCP_MAX="253"' >> /etc/default/lxc-net
 fi
 sudo systemctl enable lxc-net
 sudo systemctl start lxc-net
