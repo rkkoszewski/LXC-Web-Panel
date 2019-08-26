@@ -36,6 +36,12 @@ sudo systemctl enable lxc-net
 sudo systemctl start lxc-net
 sudo systemctl status lxc-net
 
+# Copy Startup Script
+sudo cp ./debian/lwp.service /etc/systemd/system/lwp.service
+sudo systemctl enable lwp
+sudo systemctl start lwp
+sudo systemctl status lwp
+
 # DONE
 echo "SETUP FINISHED. Start LWP with command 'sudo lwp'"
 echo "You might want to disable the shellinabox service if not used"
