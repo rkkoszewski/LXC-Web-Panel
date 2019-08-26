@@ -4,13 +4,13 @@
 
 # Install Required Packages
 sudo apt-get update
-sudo apt-get install lxc bridge-utils python python-lxc python-flask python-setuptools shellinabox iptables curl
-sudo apt-get install python-dev libldap2-dev libsasl2-dev libffi-dev libssl-dev
+sudo apt-get install lxc bridge-utils python python-lxc python-flask python-setuptools shellinabox iptables curl -y
+sudo apt-get install python-dev libldap2-dev libsasl2-dev libffi-dev libssl-dev -y
 
 # Install Node
 curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
 sudo apt-get update
-sudo apt-get install build-essential nodejs
+sudo apt-get install build-essential nodejs npm -y
 
 # Build Files
 cd jsbuild
