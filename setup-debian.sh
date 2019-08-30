@@ -4,7 +4,8 @@
 
 # Install Required Packages
 sudo apt-get update
-sudo apt-get install lxc bridge-utils python python-lxc python-flask python-setuptools shellinabox iptables curl busybox -y
+sudo apt-get install python python-flask python-setuptools shellinabox iptables curl busybox debootstrap debian-archive-keyring dnsmasq -y
+sudo apt-get --install-suggests install lxc lxc-templates bridge-utils python-lxc -y
 sudo apt-get install python-dev libldap2-dev libsasl2-dev libffi-dev libssl-dev -y
 
 # Install Node
@@ -38,6 +39,10 @@ if [ ! -f '/etc/default/lxc-net' ]; then
    sudo echo 'LXC_DHCP_RANGE="10.0.3.2,10.0.3.254"' >> /etc/default/lxc-net
    sudo echo 'LXC_DHCP_MAX="253"' >> /etc/default/lxc-net
 fi
+
+sudo systemctl disable dnsmasq
+sudo systemctl stop dnsmasq
+
 sudo systemctl enable lxc-net
 sudo systemctl start lxc-net
 sudo systemctl status lxc-net
