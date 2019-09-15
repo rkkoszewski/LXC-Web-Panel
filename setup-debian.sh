@@ -5,7 +5,7 @@
 # Install Required Packages
 sudo apt-get update
 sudo apt-get install python python-flask python-setuptools shellinabox iptables curl busybox debootstrap debian-archive-keyring dnsmasq -y
-sudo apt-get --install-suggests install lxc lxc-templates bridge-utils python-lxc -y
+sudo apt-get install lxc lxc-templates bridge-utils python-lxc lxcfs -y
 sudo apt-get install python-dev libldap2-dev libsasl2-dev libffi-dev libssl-dev -y
 
 # Install Node
@@ -57,3 +57,4 @@ sudo systemctl status lwp
 echo "SETUP FINISHED. Start LWP with command 'sudo lwp'"
 echo "You might want to disable the shellinabox service if not used"
 echo "To disable it run 'sudo systemctl disable shellinabox'
+echo "Also check if you need to add 'configs' to /etc/modules"

@@ -176,15 +176,15 @@
     <label class="control-label" for="loglevel">Log level</label>
     <div class="controls">
         <select type="text" id="loglevel" name="loglevel" value="{{ settings.loglevel }}">
-            <option value="0">trace</option>
-            <option value="1">debug</option>
-            <option value="2">info</option>
-            <option value="3">notice</option>
-            <option value="4">warn</option>
-            <option value="5">error</option>
-            <option value="6">critical</option>
-            <option value="7">alert</option>
-            <option value="8">fatal</option>
+            <option value="0" {% if settings.loglevel == "0" %}selected="selected"{% endif %}>trace</option>
+            <option value="1" {% if settings.loglevel == "1" %}selected="selected"{% endif %}>debug</option>
+            <option value="2" {% if settings.loglevel == "2" %}selected="selected"{% endif %}>info</option>
+            <option value="3" {% if settings.loglevel == "3" %}selected="selected"{% endif %}>notice</option>
+            <option value="4" {% if settings.loglevel == "4" %}selected="selected"{% endif %}>warn</option>
+            <option value="5" {% if settings.loglevel == "" %}selected="selected"{% endif %}{% if settings.loglevel == "5" %}selected="selected"{% endif %}>error</option>
+            <option value="6" {% if settings.loglevel == "6" %}selected="selected"{% endif %}>critical</option>
+            <option value="7" {% if settings.loglevel == "7" %}selected="selected"{% endif %}>alert</option>
+            <option value="8" {% if settings.loglevel == "8" %}selected="selected"{% endif %}>fatal</option>
         </select>
         <span class="help-inline"><small>Default log level: 5 - error</small></span>
     </div>

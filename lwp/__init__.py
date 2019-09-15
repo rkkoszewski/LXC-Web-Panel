@@ -63,12 +63,20 @@ def memory_usage(name):
         raise ContainerNotExists("The container (%s) does not exist!" % name)
     if name in stopped():
         return 0
-    cmd = ['lxc-cgroup -n %s memory.usage_in_bytes' % name]
+  
     try:
-        out = subprocess.check_output(cmd, shell=True).splitlines()
-    except subprocess.CalledProcessError:
-        return 0
-    return int(int(out[0]) / 1024 / 1024)
+        with open('/sys/fs/cgroup/memory/lxc/%s/memory.usage_in_bytes' % name, 'r') as f:
+            out = f.readlines()
+            return int(int(out[0]) / 1024 / 1024)
+    except:
+        cmd = ['lxc-cgroup -n %s memory.usage_in_bytes' % name]
+        try:
+            out = subprocess.check_output(cmd, shell=True).splitlines()
+            if out == '':
+                out = 0
+        except subprocess.CalledProcessError:
+            return 0
+    return 0
 
 
 def host_memory_usage():
@@ -177,7 +185,8 @@ def get_templates_list():
 
     if path:
         for line in path:
-                templates.append(line.replace('lxc-', ''))
+                if line not in ['lxc-download', 'lxc-local', 'lxc-oci']:
+                    templates.append(line.replace('lxc-', ''))
 
     return sorted(templates)
 
