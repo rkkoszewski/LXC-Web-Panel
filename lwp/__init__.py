@@ -65,9 +65,23 @@ def memory_usage(name):
         return 0
   
     try:
-        with open('/sys/fs/cgroup/memory/lxc/%s/memory.usage_in_bytes' % name, 'r') as f:
-            out = f.readlines()
-            return int(int(out[0]) / 1024 / 1024)
+        cache, rss, found_cache, found_rss = 0, 0, 0, 0
+        with open('/sys/fs/cgroup/memory/lxc/%s/memory.stat' % name, 'r') as out:
+            for line in out:
+                parts = line.split()
+                key = parts[0]
+                value = parts[1]
+                if key == 'cache':
+                    cache = float(value)
+                    found_cache = 1
+                    if found_rss == 1:
+                        break
+                elif key == 'rss':
+                    rss = float(value)
+                    found_rss = 1
+                    if found_cache == 1:
+                        break
+            return int(int(rss) / 1024 / 1024) # Cache to be used later on
     except:
         cmd = ['lxc-cgroup -n %s memory.usage_in_bytes' % name]
         try:
